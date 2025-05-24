@@ -1,9 +1,3 @@
-# I'll generate a downloadable ZIP file containing the updated HTML code
-from zipfile import ZipFile
-import os
-
-# HTML content with localStorage integration
-html_content = """
 <!DOCTYPE html>
 <html lang="he">
 <head>
@@ -15,16 +9,19 @@ html_content = """
     body, input, button {
       font-family: 'Assistant', sans-serif;
     }
+
     body {
       background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
       margin: 0;
       padding: 20px;
       direction: rtl;
     }
+
     h1 {
       text-align: center;
       color: #333;
     }
+
     .container {
       max-width: 700px;
       margin: auto;
@@ -33,6 +30,7 @@ html_content = """
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
+
     .product {
       display: flex;
       align-items: center;
@@ -43,12 +41,14 @@ html_content = """
       margin-bottom: 10px;
       flex-wrap: wrap;
     }
+
     .product-info {
       display: flex;
       align-items: center;
       flex: 1 1 auto;
       min-width: 0;
     }
+
     .product img {
       width: 50px;
       height: 50px;
@@ -57,9 +57,11 @@ html_content = """
       margin-left: 15px;
       cursor: zoom-in;
     }
+
     .product input[type="checkbox"] {
       margin-left: 10px;
     }
+
     .product label {
       font-size: 1.1em;
       color: #222;
@@ -67,16 +69,19 @@ html_content = """
       transition: all 0.3s;
       word-break: break-word;
     }
+
     .product input[type="checkbox"]:checked + label {
       text-decoration: line-through;
       color: gray;
       opacity: 0.6;
     }
+
     .icons {
       display: flex;
       gap: 10px;
       margin-right: 10px;
     }
+
     .icons svg {
       width: 20px;
       height: 20px;
@@ -84,21 +89,25 @@ html_content = """
       fill: #555;
       transition: fill 0.2s;
     }
+
     .icons svg:hover {
       fill: #e91e63;
     }
+
     .add-form {
       margin-top: 30px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
+
     .add-form input[type="text"] {
       padding: 10px;
       font-size: 1em;
       border: 1px solid #ccc;
       border-radius: 6px;
     }
+
     .add-form button {
       padding: 10px;
       font-size: 1em;
@@ -109,9 +118,11 @@ html_content = """
       cursor: pointer;
       transition: background-color 0.3s;
     }
+
     .add-form button:hover {
       background-color: #45a049;
     }
+
     .image-viewer {
       position: fixed;
       top: 0;
@@ -124,6 +135,7 @@ html_content = """
       align-items: center;
       z-index: 1000;
     }
+
     .image-viewer img {
       max-width: 90%;
       max-height: 90%;
@@ -131,11 +143,13 @@ html_content = """
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
       cursor: zoom-out;
     }
+
     @media (max-width: 600px) {
       .product {
         flex-direction: column;
         align-items: flex-start;
       }
+
       .icons {
         margin-top: 8px;
         margin-right: 0;
@@ -147,100 +161,102 @@ html_content = """
   <div class="container">
     <h1>רשימת קניות</h1>
     <div id="product-list"></div>
+
     <div class="add-form">
       <input type="text" id="product-name" placeholder="שם הפריט">
       <input type="text" id="product-image" placeholder="קישור לתמונה (לא חובה)">
       <button onclick="addProduct()">הוסף פריט</button>
     </div>
   </div>
+
+  <!-- זכויות יוצרים -->
   <p style="text-align: center; font-size: 0.9em; color: #777; margin-top: 30px;">
     &copy; 2025 כל הזכויות שמורות לדן טואיטו
   </p>
+
   <div class="image-viewer" id="image-viewer" onclick="closeImage()">
     <img id="viewer-img" src="" alt="הגדלה">
   </div>
+
   <script>
     let counter = 0;
 
-    function loadFromStorage() {
-      const data = JSON.parse(localStorage.getItem('shoppingList') || '[]');
-      data.forEach(item => {
-        addProduct(item.name, item.imageUrl, item.checked);
-      });
-    }
-
-    function saveToStorage() {
-      const items = [];
-      document.querySelectorAll('.product').forEach(product => {
-        const name = product.querySelector('label').textContent;
-        const image = product.querySelector('img');
-        const checkbox = product.querySelector('input[type="checkbox"]');
-        items.push({
-          name,
-          imageUrl: image ? image.src : '',
-          checked: checkbox.checked
-        });
-      });
-      localStorage.setItem('shoppingList', JSON.stringify(items));
-    }
-
-    function addProduct(name = null, imageUrl = '', checked = false) {
+    function addProduct(name = null, imageUrl = null) {
       if (!name) {
         name = document.getElementById('product-name').value.trim();
         imageUrl = document.getElementById('product-image').value.trim();
       }
+
       if (!name) return;
 
       const list = document.getElementById('product-list');
       const productDiv = document.createElement('div');
       productDiv.className = 'product';
+
       const checkboxId = 'product-' + counter++;
+
       const imgHTML = imageUrl
         ? `<img src="${imageUrl}" alt="${name}" onclick="showImage('${imageUrl}')">`
         : '';
+
       productDiv.innerHTML = `
         <div class="product-info">
-          <input type="checkbox" id="${checkboxId}" ${checked ? 'checked' : ''} onchange="saveToStorage()">
+          <input type="checkbox" id="${checkboxId}">
           <label for="${checkboxId}">${name}</label>
           ${imgHTML}
         </div>
         <div class="icons">
-          <svg onclick="editProduct(this)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
-          <svg onclick="deleteProduct(this)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+          <svg onclick="editProduct(this)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zM20.71
+            7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003
+            1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
+          </svg>
+          <svg onclick="deleteProduct(this)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M16 9v10H8V9h8m-1.5-6h-5l-1
+            1H5v2h14V4h-4.5l-1-1zM18 7H6v12c0 1.1.9 2
+            2 2h8c1.1 0 2-.9 2-2V7z"/>
+          </svg>
         </div>
       `;
+
       list.appendChild(productDiv);
-      saveToStorage();
+
       document.getElementById('product-name').value = '';
       document.getElementById('product-image').value = '';
     }
 
     function showImage(url) {
-      document.getElementById('viewer-img').src = url;
-      document.getElementById('image-viewer').style.display = 'flex';
+      const viewer = document.getElementById('image-viewer');
+      const viewerImg = document.getElementById('viewer-img');
+      viewerImg.src = url;
+      viewer.style.display = 'flex';
     }
 
     function closeImage() {
-      document.getElementById('image-viewer').style.display = 'none';
-      document.getElementById('viewer-img').src = '';
+      const viewer = document.getElementById('image-viewer');
+      const viewerImg = document.getElementById('viewer-img');
+      viewer.style.display = 'none';
+      viewerImg.src = '';
     }
 
     function deleteProduct(icon) {
       const product = icon.closest('.product');
       if (product) product.remove();
-      saveToStorage();
     }
 
     function editProduct(icon) {
       const product = icon.closest('.product');
       const label = product.querySelector('label');
       const img = product.querySelector('img');
-      const checkbox = product.querySelector('input[type="checkbox"]');
+
       const currentName = label.textContent;
       const currentImg = img ? img.src : '';
+
       const newName = prompt('ערוך שם פריט:', currentName);
       const newImg = prompt('ערוך קישור תמונה (או השאר ריק):', currentImg);
+
       if (newName) label.textContent = newName;
+
       if (newImg !== null) {
         if (newImg === '' && img) {
           img.remove();
@@ -258,19 +274,7 @@ html_content = """
           }
         }
       }
-      saveToStorage();
     }
-
-    window.onload = loadFromStorage;
   </script>
 </body>
 </html>
-"""
-
-# Save HTML file
-html_path = "/mnt/data/index.html"
-with open(html_path, "w", encoding="utf-8") as file:
-    file.write(html_content)
-
-# Return file for download
-html_path
