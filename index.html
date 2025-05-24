@@ -142,7 +142,6 @@
   <div class="container">
     <h1>רשימת קניות</h1>
     <div id="product-list"></div>
-    <button onclick="clearList()" style="margin-top: 20px; background-color: #f44336;">נקה רשימה</button>
     <div class="add-form">
       <input type="text" id="product-name" placeholder="שם הפריט">
       <input type="text" id="product-image" placeholder="קישור לתמונה (לא חובה)">
@@ -180,12 +179,23 @@
       localStorage.setItem('shoppingList', JSON.stringify(items));
     }
 
-    function addProduct(name = null, imageUrl = '', checked = false) {
+    
+    function isImageUrl(url) {
+      return url === "" || /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(url);
+    }
+
+    function addProduct(name = null, imageUrl = \'\', checked = false) {
       if (!name) {
         name = document.getElementById('product-name').value.trim();
         imageUrl = document.getElementById('product-image').value.trim();
       }
+      
       if (!name) return;
+      if (!isImageUrl(imageUrl)) {
+        alert("יש להזין קישור לתמונה בלבד (jpg, png, gif, webp, bmp) או להשאיר את השדה ריק.");
+        return;
+      }
+    
 
       const list = document.getElementById('product-list');
       const productDiv = document.createElement('div');
