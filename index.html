@@ -56,6 +56,9 @@
       border-radius: 6px;
       margin-left: 15px;
       cursor: zoom-in;
+      border: 2px solid #ccc;
+      padding: 2px;
+      background: white;
     }
 
     .product input[type="checkbox"] {
@@ -123,6 +126,12 @@
       background-color: #45a049;
     }
 
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
     .image-viewer {
       position: fixed;
       top: 0;
@@ -166,10 +175,13 @@
       <input type="text" id="product-name" placeholder="שם הפריט">
       <input type="text" id="product-image" placeholder="קישור לתמונה (לא חובה)">
       <button onclick="addProduct()">הוסף פריט</button>
+      <div class="action-buttons">
+        <button onclick="clearList()" style="background-color: #f44336;">נקה רשימה</button>
+        <button onclick="window.print()" style="background-color: #2196F3;">הדפס</button>
+      </div>
     </div>
   </div>
 
-  <!-- זכויות יוצרים -->
   <p style="text-align: center; font-size: 0.9em; color: #777; margin-top: 30px;">
     &copy; 2025 כל הזכויות שמורות לדן טואיטו
   </p>
@@ -181,7 +193,25 @@
   <script>
     let counter = 0;
 
-    function addProduct(name = null, imageUrl = null) {
+    function saveToStorage() {
+      const products = Array.from(document.querySelectorAll('.product')).map(prod => {
+        return {
+          name: prod.querySelector('label').textContent,
+          checked: prod.querySelector('input[type="checkbox"]').checked,
+          image: prod.querySelector('img')?.src || ''
+        };
+      });
+      localStorage.setItem('shoppingList', JSON.stringify(products));
+    }
+
+    function loadFromStorage() {
+      const saved = JSON.parse(localStorage.getItem('shoppingList') || '[]');
+      saved.forEach(item => {
+        addProduct(item.name, item.image, item.checked);
+      });
+    }
+
+    function addProduct(name = null, imageUrl = null, checked = false) {
       if (!name) {
         name = document.getElementById('product-name').value.trim();
         imageUrl = document.getElementById('product-image').value.trim();
@@ -201,7 +231,7 @@
 
       productDiv.innerHTML = `
         <div class="product-info">
-          <input type="checkbox" id="${checkboxId}">
+          <input type="checkbox" id="${checkboxId}" ${checked ? 'checked' : ''}>
           <label for="${checkboxId}">${name}</label>
           ${imgHTML}
         </div>
@@ -219,7 +249,9 @@
         </div>
       `;
 
+      productDiv.querySelector('input[type="checkbox"]').addEventListener('change', saveToStorage);
       list.appendChild(productDiv);
+      saveToStorage();
 
       document.getElementById('product-name').value = '';
       document.getElementById('product-image').value = '';
@@ -242,6 +274,7 @@
     function deleteProduct(icon) {
       const product = icon.closest('.product');
       if (product) product.remove();
+      saveToStorage();
     }
 
     function editProduct(icon) {
@@ -270,11 +303,22 @@
             imgElement.alt = newName;
             imgElement.setAttribute('onclick', `showImage('${newImg}')`);
             imgElement.style.cursor = 'zoom-in';
+            imgElement.style.border = '2px solid #ccc';
+            imgElement.style.padding = '2px';
             product.querySelector('.product-info').appendChild(imgElement);
           }
         }
       }
+      saveToStorage();
     }
+
+    function clearList() {
+      document.getElementById('product-list').innerHTML = '';
+      localStorage.removeItem('shoppingList');
+      counter = 0;
+    }
+
+    window.addEventListener('DOMContentLoaded', loadFromStorage);
   </script>
 </body>
 </html>
