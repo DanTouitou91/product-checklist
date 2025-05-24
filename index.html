@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
-    body, input, button {
+    body, input, button, select {
       font-family: 'Assistant', sans-serif;
     }
 
@@ -104,7 +104,7 @@
       gap: 10px;
     }
 
-    .add-form input[type="text"] {
+    .add-form input[type="text"], .add-form select {
       padding: 10px;
       font-size: 1em;
       border: 1px solid #ccc;
@@ -175,6 +175,12 @@
     <div class="add-form">
       <input type="text" id="product-name" placeholder="שם הפריט">
       <input type="text" id="product-image" placeholder="קישור לתמונה (לא חובה)">
+      <select id="product-quantity">
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+        <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+        <option value="10">10</option>
+      </select>
       <button onclick="addProduct()">הוסף פריט</button>
       <div class="action-buttons">
         <button onclick="clearList()" style="background-color: #f44336;">נקה רשימה</button>
@@ -196,10 +202,14 @@
 
     function saveToStorage() {
       const products = Array.from(document.querySelectorAll('.product')).map(prod => {
+        const labelText = prod.querySelector('label').textContent;
+        const name = labelText.replace(/ ×\d+$/, '').trim();
+        const quantity = parseInt(prod.querySelector('.quantity')?.textContent.replace('×', '') || '1');
         return {
-          name: prod.querySelector('label').textContent,
+          name,
           checked: prod.querySelector('input[type="checkbox"]').checked,
-          image: prod.querySelector('img')?.src || ''
+          image: prod.querySelector('img')?.src || '',
+          quantity
         };
       });
       localStorage.setItem('shoppingList', JSON.stringify(products));
@@ -207,15 +217,17 @@
 
     function loadFromStorage() {
       const saved = JSON.parse(localStorage.getItem('shoppingList') || '[]');
+      counter = saved.length;
       saved.forEach(item => {
-        addProduct(item.name, item.image, item.checked);
+        addProduct(item.name, item.image, item.checked, item.quantity || 1);
       });
     }
 
-    function addProduct(name = null, imageUrl = null, checked = false) {
+    function addProduct(name = null, imageUrl = null, checked = false, quantity = 1) {
       if (!name) {
         name = document.getElementById('product-name').value.trim();
         imageUrl = document.getElementById('product-image').value.trim();
+        quantity = parseInt(document.getElementById('product-quantity').value);
       }
 
       if (!name) return;
@@ -233,7 +245,7 @@
       productDiv.innerHTML = `
         <div class="product-info">
           <input type="checkbox" id="${checkboxId}" ${checked ? 'checked' : ''}>
-          <label for="${checkboxId}">${name}</label>
+          <label for="${checkboxId}">${name} <span class="quantity">×${quantity}</span></label>
           ${imgHTML}
         </div>
         <div class="icons">
@@ -256,6 +268,7 @@
 
       document.getElementById('product-name').value = '';
       document.getElementById('product-image').value = '';
+      document.getElementById('product-quantity').value = '1';
     }
 
     function showImage(url) {
@@ -282,14 +295,16 @@
       const product = icon.closest('.product');
       const label = product.querySelector('label');
       const img = product.querySelector('img');
-
-      const currentName = label.textContent;
+      const currentText = label.textContent;
+      const currentName = currentText.replace(/ ×\d+$/, '').trim();
       const currentImg = img ? img.src : '';
+      const currentQty = parseInt(product.querySelector('.quantity')?.textContent.replace('×', '') || '1');
 
       const newName = prompt('ערוך שם פריט:', currentName);
       const newImg = prompt('ערוך קישור תמונה (או השאר ריק):', currentImg);
+      const newQty = parseInt(prompt('ערוך כמות (1–10):', currentQty)) || 1;
 
-      if (newName) label.textContent = newName;
+      if (newName) label.innerHTML = `${newName} <span class="quantity">×${newQty}</span>`;
 
       if (newImg !== null) {
         if (newImg === '' && img) {
@@ -303,13 +318,11 @@
             imgElement.src = newImg;
             imgElement.alt = newName;
             imgElement.setAttribute('onclick', `showImage('${newImg}')`);
-            imgElement.style.cursor = 'zoom-in';
-            imgElement.style.border = '2px solid #ccc';
-            imgElement.style.padding = '2px';
             product.querySelector('.product-info').appendChild(imgElement);
           }
         }
       }
+
       saveToStorage();
     }
 
