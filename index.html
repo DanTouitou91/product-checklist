@@ -142,6 +142,7 @@
   <div class="container">
     <h1>רשימת קניות</h1>
     <div id="product-list"></div>
+    <button onclick="clearList()" style="margin-top: 20px; background-color: #f44336;">נקה רשימה</button>
     <div class="add-form">
       <input type="text" id="product-name" placeholder="שם הפריט">
       <input type="text" id="product-image" placeholder="קישור לתמונה (לא חובה)">
@@ -256,7 +257,15 @@
       saveToStorage();
     }
 
+    
+    function clearList() {
+      if (confirm("האם אתה בטוח שברצונך למחוק את כל הרשימה?")) {
+        localStorage.removeItem("shoppingList");
+        document.getElementById("product-list").innerHTML = "";
+      }
+    }
     window.onload = loadFromStorage;
+    
   </script>
 </body>
 </html>
