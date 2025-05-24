@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
-  <title>רשימת מוצרים</title>
+  <title>רשימת קניות</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -159,15 +159,20 @@
 </head>
 <body>
   <div class="container">
-    <h1>רשימת מוצרים</h1>
+    <h1>רשימת קניות</h1>
     <div id="product-list"></div>
 
     <div class="add-form">
-      <input type="text" id="product-name" placeholder="שם המוצר">
+      <input type="text" id="product-name" placeholder="שם הפריט">
       <input type="text" id="product-image" placeholder="קישור לתמונה (לא חובה)">
-      <button onclick="addProduct()">הוסף מוצר</button>
+      <button onclick="addProduct()">הוסף פריט</button>
     </div>
   </div>
+
+  <!-- זכויות יוצרים -->
+  <p style="text-align: center; font-size: 0.9em; color: #777; margin-top: 30px;">
+    &copy; 2025 כל הזכויות שמורות לדן טואיטו
+  </p>
 
   <div class="image-viewer" id="image-viewer" onclick="closeImage()">
     <img id="viewer-img" src="" alt="הגדלה">
@@ -247,7 +252,7 @@
       const currentName = label.textContent;
       const currentImg = img ? img.src : '';
 
-      const newName = prompt('ערוך שם מוצר:', currentName);
+      const newName = prompt('ערוך שם פריט:', currentName);
       const newImg = prompt('ערוך קישור תמונה (או השאר ריק):', currentImg);
 
       if (newName) label.textContent = newName;
