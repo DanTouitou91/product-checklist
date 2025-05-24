@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>רשימת מוצרים</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body, input, button {
+      font-family: 'Assistant', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
+      margin: 0;
+      padding: 20px;
+      direction: rtl;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .product {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #fafafa;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .product-info {
+      display: flex;
+      align-items: center;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .product img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-left: 15px;
+      cursor: zoom-in;
+    }
+
+    .product input[type="checkbox"] {
+      margin-left: 10px;
+    }
+
+    .product label {
+      font-size: 1.1em;
+      color: #222;
+      cursor: pointer;
+      transition: all 0.3s;
+      word-break: break-word;
+    }
+
+    .product input[type="checkbox"]:checked + label {
+      text-decoration: line-through;
+      color: gray;
+      opacity: 0.6;
+    }
+
+    .icons {
+      display: flex;
+      gap: 10px;
+      margin-right: 10px;
+    }
+
+    .icons svg {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      fill: #555;
+      transition: fill 0.2s;
+    }
+
+    .icons svg:hover {
+      fill: #e91e63;
+    }
+
+    .add-form {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .add-form input[type="text"] {
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .add-form button {
+      padding: 10px;
+      font-size: 1em;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .add-form button:hover {
+      background-color: #45a049;
+    }
+
+    .image-viewer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .image-viewer img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      cursor: zoom-out;
+    }
+
+    @media (max-width: 600px) {
+      .product {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .icons {
+        margin-top: 8px;
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>רשימת מוצרים</h1>
+    <div id="product-list"></div>
+
+    <div class="add-form">
+      <input type="text" id="product-name" placeholder="שם המוצר">
+      <input type="text" id="product-image" placeholder="קישור לתמונה (לא חובה)">
+      <button onclick="addProduct()">הוסף מוצר</button>
+    </div>
+  </div>
+
+  <div class="image-viewer" id="image-viewer" onclick="closeImage()">
+    <img id="viewer-img" src="" alt="הגדלה">
+  </div>
+
+  <script>
+    let counter = 0;
+
+    function addProduct(name = null, imageUrl = null) {
+      if (!name) {
+        name = document.getElementById('product-name').value.trim();
+        imageUrl = document.getElementById('product-image').value.trim();
+      }
+
+      if (!name) return;
+
+      const list = document.getElementById('product-list');
+      const productDiv = document.createElement('div');
+      productDiv.className = 'product';
+
+      const checkboxId = 'product-' + counter++;
+
+      const imgHTML = imageUrl
+        ? `<img src="${imageUrl}" alt="${name}" onclick="showImage('${imageUrl}')">`
+        : '';
+
+      productDiv.innerHTML = `
+        <div class="product-info">
+          <input type="checkbox" id="${checkboxId}">
+          <label for="${checkboxId}">${name}</label>
+          ${imgHTML}
+        </div>
+        <div class="icons">
+          <svg onclick="editProduct(this)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zM20.71
+            7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003
+            1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
+          </svg>
+          <svg onclick="deleteProduct(this)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M16 9v10H8V9h8m-1.5-6h-5l-1
+            1H5v2h14V4h-4.5l-1-1zM18 7H6v12c0 1.1.9 2
+            2 2h8c1.1 0 2-.9 2-2V7z"/>
+          </svg>
+        </div>
+      `;
+
+      list.appendChild(productDiv);
+
+      document.getElementById('product-name').value = '';
+      document.getElementById('product-image').value = '';
+    }
+
+    function showImage(url) {
+      const viewer = document.getElementById('image-viewer');
+      const viewerImg = document.getElementById('viewer-img');
+      viewerImg.src = url;
+      viewer.style.display = 'flex';
+    }
+
+    function closeImage() {
+      const viewer = document.getElementById('image-viewer');
+      const viewerImg = document.getElementById('viewer-img');
+      viewer.style.display = 'none';
+      viewerImg.src = '';
+    }
+
+    function deleteProduct(icon) {
+      const product = icon.closest('.product');
+      if (product) product.remove();
+    }
+
+    function editProduct(icon) {
+      const product = icon.closest('.product');
+      const label = product.querySelector('label');
+      const img = product.querySelector('img');
+
+      const currentName = label.textContent;
+      const currentImg = img ? img.src : '';
+
+      const newName = prompt('ערוך שם מוצר:', currentName);
+      const newImg = prompt('ערוך קישור תמונה (או השאר ריק):', currentImg);
+
+      if (newName) label.textContent = newName;
+
+      if (newImg !== null) {
+        if (newImg === '' && img) {
+          img.remove();
+        } else if (newImg !== '') {
+          if (img) {
+            img.src = newImg;
+            img.setAttribute('onclick', `showImage('${newImg}')`);
+          } else {
+            const imgElement = document.createElement('img');
+            imgElement.src = newImg;
+            imgElement.alt = newName;
+            imgElement.setAttribute('onclick', `showImage('${newImg}')`);
+            imgElement.style.cursor = 'zoom-in';
+            product.querySelector('.product-info').appendChild(imgElement);
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
